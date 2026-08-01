@@ -393,6 +393,7 @@ body.rules-page {
   height: auto;
   min-height: 100vh;
   overflow-y: auto;
+  font-size: 18px;
 }
 
 .rules-wrap {

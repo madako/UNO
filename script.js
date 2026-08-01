@@ -1,7 +1,7 @@
 'use strict';
 
 const COLORS = ['red', 'yellow', 'green', 'blue'];
-const NAMES = ['あなた', 'CPU 1', 'CPU 2', 'CPU 3'];
+const NAMES = ['あなた', 'ロボット1', 'ロボット2', 'ロボット3'];
 
 let state = null;
 let locked = false; // true while an animation / AI turn is resolving
@@ -92,7 +92,7 @@ function initGame(opponentCount) {
   state.discard.push(starter);
   state.currentColor = starter.color === 'wild' ? randomColor() : starter.color;
 
-  log(`ゲーム開始！ 最初のカードは ${describeCard(starter)}`);
+  log(`ゲームスタート！ さいしょのカードは ${describeCard(starter)}だよ`);
 
   applyStartingCardEffect(starter);
 
@@ -111,7 +111,7 @@ function applyStartingCardEffect(card) {
       // Human gets to pick via first-turn handling would be complex; keep it simple with random color.
     }
   } else if (card.type === 'skip') {
-    log(`${state.players[0].name} は最初のカードでスキップされました`);
+    log(`${state.players[0].name}は さいしょから 1かい おやすみだよ`);
     state.currentPlayerIndex = mod(1, state.players.length);
   } else if (card.type === 'reverse') {
     state.direction = -1;
@@ -119,7 +119,7 @@ function applyStartingCardEffect(card) {
   } else if (card.type === 'draw2') {
     const target = state.players[0];
     drawCards(target, 2);
-    log(`${target.name} は最初のカードで2枚引いてスキップされました`);
+    log(`${target.name}は カードを2まい ひいて 1かい おやすみだよ`);
     state.currentPlayerIndex = mod(1, state.players.length);
   }
 }
@@ -165,7 +165,7 @@ function reshuffleIfNeeded() {
     const top = state.discard.pop();
     state.deck = shuffle(state.discard);
     state.discard = [top];
-    log('山札が尽きたため捨て札をシャッフルしました');
+    log('カードの やまが なくなったから もういっかい まぜたよ');
   }
 }
 
@@ -178,11 +178,11 @@ function drawCards(player, n) {
 }
 
 function describeCard(card) {
-  const colorNames = { red: '赤', yellow: '黄', green: '緑', blue: '青', wild: 'ワイルド' };
+  const colorNames = { red: 'あか', yellow: 'きいろ', green: 'みどり', blue: 'あお', wild: 'ワイルド' };
   if (card.type === 'number') return `${colorNames[card.color]}の${card.value}`;
-  if (card.type === 'skip') return `${colorNames[card.color]}のスキップ`;
-  if (card.type === 'reverse') return `${colorNames[card.color]}のリバース`;
-  if (card.type === 'draw2') return `${colorNames[card.color]}のドロー2`;
+  if (card.type === 'skip') return `${colorNames[card.color]}の スキップ`;
+  if (card.type === 'reverse') return `${colorNames[card.color]}の リバース`;
+  if (card.type === 'draw2') return `${colorNames[card.color]}の ドロー2`;
   if (card.type === 'wild') return 'ワイルド';
   if (card.type === 'wild4') return 'ワイルドドロー4';
 }
@@ -201,7 +201,7 @@ function playCard(playerIndex, card, chosenColor) {
 
   state.currentColor = card.color === 'wild' ? chosenColor : card.color;
 
-  log(`${player.name} は ${describeCard(card)}${card.color === 'wild' ? `（${colorNameJp(chosenColor)}を指定）` : ''} を出した`);
+  log(`${player.name}が ${describeCard(card)}を だしたよ！${card.color === 'wild' ? `（いろは ${colorNameJp(chosenColor)}）` : ''}`);
 
   // UNO penalty check: if player now has exactly 1 card, they must have called UNO.
   if (player.hand.length === 1) {
@@ -210,7 +210,7 @@ function playCard(playerIndex, card, chosenColor) {
         player.pendingUnoCheck = true;
       }
     } else {
-      log(`${player.name}: UNO!`);
+      log(`${player.name}が 「UNO！」と いったよ`);
     }
   }
   state.unoArmed = false;
@@ -218,7 +218,7 @@ function playCard(playerIndex, card, chosenColor) {
   if (player.hand.length === 0) {
     state.gameOver = true;
     render();
-    showResult(`${player.name} の勝ちです！`);
+    showResult(`${player.name}の かちだよ！`);
     return;
   }
 
@@ -234,13 +234,13 @@ function playCard(playerIndex, card, chosenColor) {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
     drawCards(target, 2);
-    log(`${target.name} は2枚引いてスキップされました`);
+    log(`${target.name}は カードを2まい ひいて 1かい おやすみだよ`);
     steps = 2;
   } else if (card.type === 'wild4') {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
     drawCards(target, 4);
-    log(`${target.name} は4枚引いてスキップされました`);
+    log(`${target.name}は カードを4まい ひいて 1かい おやすみだよ`);
     steps = 2;
   }
 
@@ -251,7 +251,7 @@ function playCard(playerIndex, card, chosenColor) {
 }
 
 function colorNameJp(color) {
-  return { red: '赤', yellow: '黄', green: '緑', blue: '青' }[color] || color;
+  return { red: 'あか', yellow: 'きいろ', green: 'みどり', blue: 'あお' }[color] || color;
 }
 
 // A player draws one card on their turn because they have no playable card
@@ -260,12 +260,12 @@ function drawOneForTurn(playerIndex) {
   const player = state.players[playerIndex];
   reshuffleIfNeeded();
   if (state.deck.length === 0) {
-    log('山札がありません');
+    log('カードの やまが ないよ');
     return null;
   }
   const card = state.deck.pop();
   player.hand.push(card);
-  log(`${player.name} は山札から1枚引いた`);
+  log(`${player.name}は カードを1まい ひいたよ`);
   return card;
 }
 
@@ -332,7 +332,7 @@ function maybeRunAiTurn() {
     if (player.pendingUnoCheck) {
       player.pendingUnoCheck = false;
       drawCards(player, 2);
-      log('UNOコールを忘れたため2枚引きました');
+      log('「UNO」を いうのを わすれたから カードを2まい ひいたよ');
     }
     render();
   }
@@ -385,7 +385,7 @@ function renderOpponents() {
 
     const count = document.createElement('div');
     count.className = 'opponent-count';
-    count.textContent = `${p.hand.length}枚`;
+    count.textContent = `${p.hand.length}まい`;
     div.appendChild(count);
 
     area.appendChild(div);
@@ -452,7 +452,7 @@ function updateTurnIndicator() {
   const ind = el('turn-indicator');
   if (state.gameOver) { ind.textContent = ''; return; }
   const p = state.players[state.currentPlayerIndex];
-  ind.textContent = p.isHuman ? 'あなたの番です' : `${p.name} の番です...`;
+  ind.textContent = p.isHuman ? 'あなたの ばんだよ' : `${p.name}の ばんだよ…`;
 }
 
 function renderLog() {
@@ -527,7 +527,7 @@ function onPassClick() {
 function onUnoClick() {
   if (state.currentPlayerIndex !== 0) return;
   state.unoArmed = true;
-  log('あなたは UNO! と宣言した');
+  log('あなたは 「UNO！」と いったよ');
   render();
 }
 
@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el('pass-btn').addEventListener('click', onPassClick);
   el('uno-btn').addEventListener('click', onUnoClick);
   el('newgame-btn').addEventListener('click', () => {
-    if (confirm('ゲームを最初からやり直しますか？')) resetToSetup();
+    if (confirm('さいしょから やりなおす？')) resetToSetup();
   });
   el('result-newgame-btn').addEventListener('click', resetToSetup);
 });
