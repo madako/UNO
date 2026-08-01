@@ -21,6 +21,9 @@ html, body {
 
 .hidden { display: none !important; }
 
+ruby { ruby-align: center; }
+rt { font-size: 0.5em; color: #cde; user-select: none; }
+
 /* ---------- Setup screen ---------- */
 #setup-screen {
   height: 100vh;
@@ -38,9 +41,19 @@ html, body {
 }
 
 .title {
-  font-size: 64px;
+  font-size: 68px;
   margin: 0 0 8px;
   letter-spacing: 4px;
+  background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.title-small {
+  font-size: 42px;
+  margin: 0 0 8px;
+  letter-spacing: 2px;
   background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
   -webkit-background-clip: text;
   background-clip: text;
@@ -50,6 +63,7 @@ html, body {
 .subtitle {
   margin: 0 0 24px;
   color: #ddd;
+  font-size: 21px;
 }
 
 .opponent-select {
@@ -60,8 +74,8 @@ html, body {
 }
 
 .opt-btn {
-  padding: 12px 20px;
-  font-size: 16px;
+  padding: 14px 24px;
+  font-size: 20px;
   border-radius: 8px;
   border: 2px solid #fff4;
   background: transparent;
@@ -76,8 +90,8 @@ html, body {
 }
 
 .primary-btn {
-  padding: 14px 34px;
-  font-size: 18px;
+  padding: 16px 38px;
+  font-size: 22px;
   font-weight: bold;
   border: none;
   border-radius: 30px;
@@ -93,7 +107,7 @@ html, body {
   display: block;
   margin-top: 16px;
   color: #cde;
-  font-size: 14px;
+  font-size: 17px;
   text-decoration: underline;
 }
 
@@ -104,6 +118,58 @@ html, body {
   align-items: center;
   text-decoration: none;
 }
+
+/* ---------- Janken screen ---------- */
+#janken-screen {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.janken-throws {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 76px;
+  margin: 10px 0;
+}
+
+.janken-throw { text-align: center; }
+
+.janken-throw-emoji { font-size: 40px; }
+
+.janken-throw-name {
+  font-size: 15px;
+  color: #cde;
+  margin-top: 4px;
+}
+
+.janken-hands {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin: 18px 0;
+}
+
+.janken-btn {
+  font-size: 20px;
+  line-height: 1.7;
+  padding: 16px 22px;
+  border-radius: 16px;
+  border: 2px solid #fff4;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.janken-btn:hover:not(:disabled) {
+  background: #fff;
+  color: #0d5a3a;
+}
+
+.janken-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* ---------- Game screen ---------- */
 #game-screen {
@@ -138,7 +204,7 @@ html, body {
 .opponent-name {
   font-weight: bold;
   margin-bottom: 4px;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .opponent-hand {
@@ -147,15 +213,15 @@ html, body {
 }
 
 .opponent-hand .card-back {
-  width: 30px;
-  height: 44px;
-  margin-left: -16px;
+  width: 34px;
+  height: 50px;
+  margin-left: -18px;
 }
 .opponent-hand .card-back:first-child { margin-left: 0; }
 
 .opponent-count {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 16px;
   color: #ffd500;
   font-weight: bold;
 }
@@ -166,7 +232,7 @@ html, body {
   right: -6px;
   background: #ed4b3d;
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: bold;
   padding: 3px 6px;
   border-radius: 10px;
@@ -176,10 +242,18 @@ html, body {
 #table-area {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 24px;
   position: relative;
   min-height: 0;
+}
+
+#direction-indicator {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd500;
 }
 
 #log-box {
@@ -187,9 +261,9 @@ html, body {
   left: 10px;
   top: 0;
   bottom: 0;
-  width: 220px;
+  width: 240px;
   overflow-y: auto;
-  font-size: 12px;
+  font-size: 16px;
   color: #cde;
   background: rgba(0,0,0,0.2);
   border-radius: 8px;
@@ -204,17 +278,17 @@ html, body {
 }
 
 .pile {
-  width: 80px;
-  height: 116px;
+  width: 88px;
+  height: 128px;
   position: relative;
 }
 
 .pile-count {
   position: absolute;
-  bottom: -22px;
+  bottom: -28px;
   width: 100%;
   text-align: center;
-  font-size: 13px;
+  font-size: 16px;
   color: #ffd500;
   font-weight: bold;
 }
@@ -226,8 +300,8 @@ html, body {
 }
 
 #current-color-ring {
-  width: 100px;
-  height: 136px;
+  width: 112px;
+  height: 148px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -237,15 +311,15 @@ html, body {
 
 /* ---------- Cards ---------- */
 .card {
-  width: 76px;
-  height: 110px;
+  width: 84px;
+  height: 122px;
   border-radius: 8px;
   background: #fff;
   border: 3px solid #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 800;
   position: relative;
   cursor: pointer;
@@ -288,22 +362,23 @@ html, body {
   justify-content: center;
   gap: 14px;
   margin-bottom: 6px;
-  min-height: 26px;
+  min-height: 34px;
 }
 
 #turn-indicator {
   font-weight: bold;
   color: #ffd500;
+  font-size: 20px;
 }
 
 .uno-btn {
-  padding: 8px 22px;
+  padding: 10px 26px;
   border-radius: 20px;
   border: none;
   background: var(--red);
   color: #fff;
   font-weight: 900;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   animation: pulse 0.9s infinite;
 }
@@ -318,7 +393,7 @@ html, body {
   display: flex;
   justify-content: center;
   padding: 10px 0;
-  min-height: 130px;
+  min-height: 145px;
   flex-wrap: wrap;
   gap: 6px;
 }
@@ -331,13 +406,13 @@ html, body {
 }
 
 .secondary-btn {
-  padding: 10px 20px;
+  padding: 12px 22px;
   border-radius: 20px;
   border: 2px solid #fff8;
   background: rgba(255,255,255,0.08);
   color: #fff;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .secondary-btn:hover { background: rgba(255,255,255,0.2); }
@@ -369,8 +444,8 @@ html, body {
 }
 
 .color-btn {
-  width: 60px;
-  height: 60px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   border: 3px solid #fff;
   cursor: pointer;
@@ -384,7 +459,7 @@ html, body {
 .color-btn:hover { transform: scale(1.1); }
 
 #result-text {
-  font-size: 26px;
+  font-size: 30px;
   margin-bottom: 20px;
 }
 
@@ -393,17 +468,17 @@ body.rules-page {
   height: auto;
   min-height: 100vh;
   overflow-y: auto;
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .rules-wrap {
-  max-width: 760px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 30px 24px 70px;
 }
 
 .rules-wrap h1 {
-  font-size: 40px;
+  font-size: 46px;
   margin: 0 0 4px;
   letter-spacing: 2px;
   background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
@@ -417,7 +492,7 @@ body.rules-page {
   margin-bottom: 20px;
   color: #cde;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .rules-wrap .back-link:hover { color: #fff; }
@@ -431,14 +506,14 @@ body.rules-page {
 
 .rules-section h2 {
   margin-top: 0;
-  font-size: 20px;
+  font-size: 25px;
   color: #ffd500;
   border-bottom: 1px solid rgba(255,255,255,0.15);
   padding-bottom: 8px;
 }
 
 .rules-section p, .rules-section li {
-  line-height: 1.8;
+  line-height: 1.9;
   color: #f0f0f0;
 }
 
@@ -460,21 +535,21 @@ body.rules-page {
 
 .card-sample .card {
   cursor: default;
-  width: 60px;
-  height: 88px;
-  font-size: 20px;
+  width: 66px;
+  height: 96px;
+  font-size: 22px;
   margin-bottom: 6px;
 }
 
 .card-sample .card:hover { transform: none; }
 
 .card-sample-label {
-  font-size: 12px;
+  font-size: 15px;
   color: #cde;
 }
 
 .rules-note {
-  font-size: 13px;
+  font-size: 17px;
   color: #bcd;
   border-left: 3px solid #ffd500;
   padding-left: 10px;

@@ -50,7 +50,7 @@ function cardLabel(card) {
 // Game setup
 // ---------------------------------------------------------------------
 
-function initGame(opponentCount) {
+function initGame(opponentCount, startIndex) {
   const playerCount = opponentCount + 1;
   const players = [];
   for (let i = 0; i < playerCount; i++) {
@@ -74,13 +74,15 @@ function initGame(opponentCount) {
     deck,
     discard: [],
     currentColor: null,
-    currentPlayerIndex: 0,
-    direction: 1,
+    currentPlayerIndex: startIndex || 0,
+    direction: 1, // 1 = clockwise (You -> Robot1 -> Robot2 -> Robot3), -1 = reversed
     gameOver: false,
     messages: [],
     unoArmed: false, // human clicked "UNO!" in advance of their last play
     pendingDrawnCard: null // card the human just drew and may choose to play
   };
+
+  log(`${state.players[state.currentPlayerIndex].name}が じゃんけんで<ruby>勝<rt>か</rt></ruby>ったから、いちばん<ruby>最初<rt>さいしょ</rt></ruby>だよ`);
 
   // Flip starting card, respecting standard first-card rules.
   let starter = deck.pop();
@@ -92,7 +94,7 @@ function initGame(opponentCount) {
   state.discard.push(starter);
   state.currentColor = starter.color === 'wild' ? randomColor() : starter.color;
 
-  log(`ゲームスタート！ さいしょのカードは ${describeCard(starter)}だよ`);
+  log(`ゲームスタート！ <ruby>最初<rt>さいしょ</rt></ruby>のカードは ${describeCard(starter)}だよ`);
 
   applyStartingCardEffect(starter);
 
@@ -105,22 +107,22 @@ function randomColor() {
 }
 
 function applyStartingCardEffect(card) {
+  const first = state.currentPlayerIndex;
+  const n = state.players.length;
+
   if (card.type === 'wild') {
-    // player 0 chooses color to start; if it's an NPC-less setup we just randomized above.
-    if (state.players[0].isHuman) {
-      // Human gets to pick via first-turn handling would be complex; keep it simple with random color.
-    }
+    // Starting color was already randomized above; first player just plays normally.
   } else if (card.type === 'skip') {
-    log(`${state.players[0].name}は さいしょから 1かい おやすみだよ`);
-    state.currentPlayerIndex = mod(1, state.players.length);
+    log(`${state.players[first].name}は <ruby>最初<rt>さいしょ</rt></ruby>から1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
+    state.currentPlayerIndex = mod(first + 1, n);
   } else if (card.type === 'reverse') {
     state.direction = -1;
-    state.currentPlayerIndex = mod(state.players.length - 1, state.players.length);
+    state.currentPlayerIndex = mod(first - 1, n);
   } else if (card.type === 'draw2') {
-    const target = state.players[0];
+    const target = state.players[first];
     drawCards(target, 2);
-    log(`${target.name}は カードを2まい ひいて 1かい おやすみだよ`);
-    state.currentPlayerIndex = mod(1, state.players.length);
+    log(`${target.name}は カードを2まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
+    state.currentPlayerIndex = mod(first + 1, n);
   }
 }
 
@@ -165,7 +167,7 @@ function reshuffleIfNeeded() {
     const top = state.discard.pop();
     state.deck = shuffle(state.discard);
     state.discard = [top];
-    log('カードの やまが なくなったから もういっかい まぜたよ');
+    log('カードの<ruby>山<rt>やま</rt></ruby>が なくなったから もう<ruby>一回<rt>いっかい</rt></ruby> まぜたよ');
   }
 }
 
@@ -201,7 +203,7 @@ function playCard(playerIndex, card, chosenColor) {
 
   state.currentColor = card.color === 'wild' ? chosenColor : card.color;
 
-  log(`${player.name}が ${describeCard(card)}を だしたよ！${card.color === 'wild' ? `（いろは ${colorNameJp(chosenColor)}）` : ''}`);
+  log(`${player.name}が ${describeCard(card)}を<ruby>出<rt>だ</rt></ruby>したよ！${card.color === 'wild' ? `（<ruby>色<rt>いろ</rt></ruby>は ${colorNameJp(chosenColor)}）` : ''}`);
 
   // UNO penalty check: if player now has exactly 1 card, they must have called UNO.
   if (player.hand.length === 1) {
@@ -210,7 +212,7 @@ function playCard(playerIndex, card, chosenColor) {
         player.pendingUnoCheck = true;
       }
     } else {
-      log(`${player.name}が 「UNO！」と いったよ`);
+      log(`${player.name}が 「UNO！」と<ruby>言<rt>い</rt></ruby>ったよ`);
     }
   }
   state.unoArmed = false;
@@ -218,7 +220,7 @@ function playCard(playerIndex, card, chosenColor) {
   if (player.hand.length === 0) {
     state.gameOver = true;
     render();
-    showResult(`${player.name}の かちだよ！`);
+    showResult(`${player.name}の<ruby>勝<rt>か</rt></ruby>ちだよ！`);
     return;
   }
 
@@ -234,13 +236,13 @@ function playCard(playerIndex, card, chosenColor) {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
     drawCards(target, 2);
-    log(`${target.name}は カードを2まい ひいて 1かい おやすみだよ`);
+    log(`${target.name}は カードを2まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
     steps = 2;
   } else if (card.type === 'wild4') {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
     drawCards(target, 4);
-    log(`${target.name}は カードを4まい ひいて 1かい おやすみだよ`);
+    log(`${target.name}は カードを4まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
     steps = 2;
   }
 
@@ -260,12 +262,12 @@ function drawOneForTurn(playerIndex) {
   const player = state.players[playerIndex];
   reshuffleIfNeeded();
   if (state.deck.length === 0) {
-    log('カードの やまが ないよ');
+    log('カードの<ruby>山<rt>やま</rt></ruby>が ないよ');
     return null;
   }
   const card = state.deck.pop();
   player.hand.push(card);
-  log(`${player.name}は カードを1まい ひいたよ`);
+  log(`${player.name}は カードを1まい<ruby>引<rt>ひ</rt></ruby>いたよ`);
   return card;
 }
 
@@ -332,7 +334,7 @@ function maybeRunAiTurn() {
     if (player.pendingUnoCheck) {
       player.pendingUnoCheck = false;
       drawCards(player, 2);
-      log('「UNO」を いうのを わすれたから カードを2まい ひいたよ');
+      log('「UNO」を<ruby>言<rt>い</rt></ruby>うのを<ruby>忘<rt>わす</rt></ruby>れたから カードを2まい<ruby>引<rt>ひ</rt></ruby>いたよ');
     }
     render();
   }
@@ -403,6 +405,13 @@ function renderCenter() {
   cardDiv.classList.add(top.color === 'wild' ? state.currentColor : top.color);
   if (top.color === 'wild') cardDiv.classList.remove('wild');
   ring.appendChild(cardDiv);
+
+  const dir = el('direction-indicator');
+  if (dir) {
+    dir.innerHTML = state.direction === 1
+      ? '↻ とけいまわり'
+      : '↺ ぎゃくまわり';
+  }
 }
 
 function colorHex(color) {
@@ -450,19 +459,15 @@ function renderPlayerHand() {
 
 function updateTurnIndicator() {
   const ind = el('turn-indicator');
-  if (state.gameOver) { ind.textContent = ''; return; }
+  if (state.gameOver) { ind.innerHTML = ''; return; }
   const p = state.players[state.currentPlayerIndex];
-  ind.textContent = p.isHuman ? 'あなたの ばんだよ' : `${p.name}の ばんだよ…`;
+  ind.innerHTML = p.isHuman ? `あなたの<ruby>番<rt>ばん</rt></ruby>だよ` : `${p.name}の<ruby>番<rt>ばん</rt></ruby>だよ…`;
 }
 
 function renderLog() {
   const box = el('log-box');
-  box.innerHTML = state.messages.slice(-40).map(m => `<div>${escapeHtml(m)}</div>`).join('');
+  box.innerHTML = state.messages.slice(-40).map(m => `<div>${m}</div>`).join('');
   box.scrollTop = box.scrollHeight;
-}
-
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 // ---------------------------------------------------------------------
@@ -527,7 +532,7 @@ function onPassClick() {
 function onUnoClick() {
   if (state.currentPlayerIndex !== 0) return;
   state.unoArmed = true;
-  log('あなたは 「UNO！」と いったよ');
+  log('あなたは 「UNO！」と<ruby>言<rt>い</rt></ruby>ったよ');
   render();
 }
 
@@ -537,17 +542,136 @@ function onUnoClick() {
 
 function showResult(text) {
   locked = true;
-  el('result-text').textContent = text;
+  el('result-text').innerHTML = text;
   el('result-modal').classList.remove('hidden');
 }
 
 function resetToSetup() {
   state = null;
+  janken = null;
   locked = false;
   el('result-modal').classList.add('hidden');
   el('color-modal').classList.add('hidden');
   el('game-screen').classList.add('hidden');
+  el('janken-screen').classList.add('hidden');
   el('setup-screen').classList.remove('hidden');
+}
+
+// ---------------------------------------------------------------------
+// Janken (rock-paper-scissors) to decide who plays first
+// ---------------------------------------------------------------------
+
+const HANDS = ['rock', 'scissors', 'paper'];
+const HAND_LABEL = { rock: 'グー', scissors: 'チョキ', paper: 'パー' };
+const HAND_EMOJI = { rock: '✊', scissors: '✌️', paper: '✋' };
+
+let janken = null; // { opponentCount, remaining: number[], round }
+
+function randomHand() {
+  return HANDS[Math.floor(Math.random() * HANDS.length)];
+}
+
+function beats(a, b) {
+  return (a === 'rock' && b === 'scissors') ||
+         (a === 'scissors' && b === 'paper') ||
+         (a === 'paper' && b === 'rock');
+}
+
+function jankenPlayerLabel(idx) {
+  return NAMES[idx];
+}
+
+function startJankenFlow(opponentCount) {
+  janken = {
+    opponentCount,
+    remaining: Array.from({ length: opponentCount + 1 }, (_, i) => i),
+    round: 1,
+    winner: null
+  };
+  el('janken-throws').innerHTML = '';
+  el('janken-start-btn').classList.add('hidden');
+  renderJankenPrompt();
+}
+
+function renderJankenPrompt() {
+  el('janken-message').innerHTML = `${janken.round}かいめ！ てを えらんでね`;
+  el('janken-hands').classList.remove('hidden');
+  el('janken-hands').querySelectorAll('.janken-btn').forEach(b => { b.disabled = false; });
+}
+
+function renderJankenMessage(html) {
+  el('janken-message').innerHTML = html;
+}
+
+function renderJankenThrows(hands) {
+  const box = el('janken-throws');
+  box.innerHTML = '';
+  janken.remaining.forEach(idx => {
+    const div = document.createElement('div');
+    div.className = 'janken-throw';
+    div.innerHTML = `<div class="janken-throw-emoji">${HAND_EMOJI[hands[idx]]}</div><div class="janken-throw-name">${jankenPlayerLabel(idx)}</div>`;
+    box.appendChild(div);
+  });
+}
+
+function showJankenStartButton() {
+  el('janken-hands').classList.add('hidden');
+  const btn = el('janken-start-btn');
+  btn.classList.remove('hidden');
+}
+
+function resolveJankenRound(humanHand) {
+  el('janken-hands').querySelectorAll('.janken-btn').forEach(b => { b.disabled = true; });
+
+  const hands = {};
+  janken.remaining.forEach(idx => {
+    hands[idx] = (idx === 0 && humanHand) ? humanHand : randomHand();
+  });
+
+  renderJankenThrows(hands);
+  renderJankenMessage('せーの…');
+
+  setTimeout(() => {
+    const thrown = new Set(janken.remaining.map(idx => hands[idx]));
+    let winningHand = null;
+    if (thrown.size === 2) {
+      const [a, b] = [...thrown];
+      winningHand = beats(a, b) ? a : b;
+    }
+
+    if (!winningHand) {
+      renderJankenMessage('あいこだよ！ もう1かい');
+      janken.round++;
+      setTimeout(() => {
+        if (janken.remaining.includes(0)) {
+          renderJankenPrompt();
+        } else {
+          resolveJankenRound(null);
+        }
+      }, 900);
+      return;
+    }
+
+    const newRemaining = janken.remaining.filter(idx => hands[idx] === winningHand);
+
+    if (newRemaining.length === 1) {
+      janken.winner = newRemaining[0];
+      renderJankenMessage(`${jankenPlayerLabel(janken.winner)}が かったよ！<br>いちばん<ruby>最初<rt>さいしょ</rt></ruby>に あそぶよ`);
+      showJankenStartButton();
+      return;
+    }
+
+    janken.remaining = newRemaining;
+    janken.round++;
+    renderJankenMessage(`${HAND_LABEL[winningHand]}の 人が のこったよ！ もう1かい`);
+    setTimeout(() => {
+      if (janken.remaining.includes(0)) {
+        renderJankenPrompt();
+      } else {
+        resolveJankenRound(null);
+      }
+    }, 900);
+  }, 700);
 }
 
 // ---------------------------------------------------------------------
@@ -567,8 +691,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   el('start-btn').addEventListener('click', () => {
     el('setup-screen').classList.add('hidden');
+    el('janken-screen').classList.remove('hidden');
+    startJankenFlow(opponentCount);
+  });
+
+  el('janken-hands').querySelectorAll('.janken-btn').forEach(btn => {
+    btn.addEventListener('click', () => resolveJankenRound(btn.dataset.hand));
+  });
+
+  el('janken-start-btn').addEventListener('click', () => {
+    el('janken-screen').classList.add('hidden');
     el('game-screen').classList.remove('hidden');
-    initGame(opponentCount);
+    initGame(janken.opponentCount, janken.winner);
   });
 
   el('draw-btn').addEventListener('click', onDrawClick);

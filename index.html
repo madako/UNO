@@ -11,14 +11,28 @@
 <div id="setup-screen" class="screen">
   <div class="setup-box">
     <h1 class="title">UNO</h1>
-    <p class="subtitle">いっしょに あそぶ ロボットの かずを えらんでね</p>
+    <p class="subtitle">いっしょに<ruby>遊<rt>あそ</rt></ruby>ぶロボットの<ruby>数<rt>かず</rt></ruby>を<ruby>選<rt>えら</rt></ruby>んでね</p>
     <div class="opponent-select" id="opponent-select">
       <button class="opt-btn" data-count="1">1にん</button>
       <button class="opt-btn" data-count="2">2にん</button>
       <button class="opt-btn selected" data-count="3">3にん</button>
     </div>
     <button id="start-btn" class="primary-btn">スタート！</button>
-    <a href="rules.html" class="rules-link" target="_blank" rel="noopener">あそびかたを みてみよう</a>
+    <a href="rules.html" class="rules-link" target="_blank" rel="noopener"><ruby>遊<rt>あそ</rt></ruby>び<ruby>方<rt>かた</rt></ruby>を見てみよう</a>
+  </div>
+</div>
+
+<div id="janken-screen" class="screen hidden">
+  <div class="setup-box">
+    <h1 class="title-small">じゃんけん</h1>
+    <p id="janken-message" class="subtitle"><ruby>最初<rt>さいしょ</rt></ruby>に<ruby>遊<rt>あそ</rt></ruby>ぶ<ruby>人<rt>ひと</rt></ruby>をじゃんけんできめるよ！</p>
+    <div id="janken-throws" class="janken-throws"></div>
+    <div id="janken-hands" class="janken-hands">
+      <button class="janken-btn" data-hand="rock">✊<br>グー</button>
+      <button class="janken-btn" data-hand="scissors">✌️<br>チョキ</button>
+      <button class="janken-btn" data-hand="paper">✋<br>パー</button>
+    </div>
+    <button id="janken-start-btn" class="primary-btn hidden">はじめる</button>
   </div>
 </div>
 
@@ -36,6 +50,7 @@
         <div id="current-color-ring"></div>
       </div>
     </div>
+    <div id="direction-indicator">↻ とけいまわり</div>
   </div>
 
   <div id="player-area">
@@ -45,17 +60,17 @@
     </div>
     <div id="player-hand"></div>
     <div id="player-controls">
-      <button id="draw-btn" class="secondary-btn">カードを ひく</button>
+      <button id="draw-btn" class="secondary-btn">カードを<ruby>引<rt>ひ</rt></ruby>く</button>
       <button id="pass-btn" class="secondary-btn hidden">パス</button>
-      <button id="newgame-btn" class="secondary-btn">さいしょから</button>
-      <a href="rules.html" class="secondary-btn rules-link-ingame" target="_blank" rel="noopener">あそびかた</a>
+      <button id="newgame-btn" class="secondary-btn"><ruby>最初<rt>さいしょ</rt></ruby>から</button>
+      <a href="rules.html" class="secondary-btn rules-link-ingame" target="_blank" rel="noopener"><ruby>遊<rt>あそ</rt></ruby>び<ruby>方<rt>かた</rt></ruby></a>
     </div>
   </div>
 </div>
 
 <div id="color-modal" class="modal hidden">
   <div class="modal-box">
-    <p>いろを えらんでね</p>
+    <p><ruby>色<rt>いろ</rt></ruby>を<ruby>選<rt>えら</rt></ruby>んでね</p>
     <div class="color-choice">
       <button class="color-btn" data-color="red"></button>
       <button class="color-btn" data-color="yellow"></button>
@@ -68,7 +83,7 @@
 <div id="result-modal" class="modal hidden">
   <div class="modal-box">
     <h2 id="result-text"></h2>
-    <button id="result-newgame-btn" class="primary-btn">もういっかい あそぶ</button>
+    <button id="result-newgame-btn" class="primary-btn">もう<ruby>一回<rt>いっかい</rt></ruby><ruby>遊<rt>あそ</rt></ruby>ぶ</button>
   </div>
 </div>
 
