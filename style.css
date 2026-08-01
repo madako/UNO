@@ -89,6 +89,22 @@ html, body {
 
 .primary-btn:hover { filter: brightness(1.08); }
 
+.rules-link {
+  display: block;
+  margin-top: 16px;
+  color: #cde;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.rules-link:hover { color: #fff; }
+
+.rules-link-ingame {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 /* ---------- Game screen ---------- */
 #game-screen {
   height: 100vh;
@@ -370,4 +386,96 @@ html, body {
 #result-text {
   font-size: 26px;
   margin-bottom: 20px;
+}
+
+/* ---------- Rules page ---------- */
+body.rules-page {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.rules-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 30px 24px 70px;
+}
+
+.rules-wrap h1 {
+  font-size: 40px;
+  margin: 0 0 4px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rules-wrap .back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #cde;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.rules-wrap .back-link:hover { color: #fff; }
+
+.rules-section {
+  background: rgba(0,0,0,0.25);
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-bottom: 18px;
+}
+
+.rules-section h2 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #ffd500;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding-bottom: 8px;
+}
+
+.rules-section p, .rules-section li {
+  line-height: 1.8;
+  color: #f0f0f0;
+}
+
+.rules-section ul {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+
+.card-sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 14px 0;
+}
+
+.card-sample {
+  text-align: center;
+}
+
+.card-sample .card {
+  cursor: default;
+  width: 60px;
+  height: 88px;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.card-sample .card:hover { transform: none; }
+
+.card-sample-label {
+  font-size: 12px;
+  color: #cde;
+}
+
+.rules-note {
+  font-size: 13px;
+  color: #bcd;
+  border-left: 3px solid #ffd500;
+  padding-left: 10px;
+  margin-top: 10px;
 }
