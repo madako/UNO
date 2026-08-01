@@ -464,6 +464,11 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 }
 
 /* ---------- Rules page ---------- */
+html.rules-page {
+  height: auto;
+  overflow-y: auto;
+}
+
 body.rules-page {
   height: auto;
   min-height: 100vh;
