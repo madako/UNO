@@ -12,11 +12,11 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
   font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   background: var(--table);
   color: #fff;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .hidden { display: none !important; }
@@ -26,7 +26,7 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 
 /* ---------- Setup screen ---------- */
 #setup-screen {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +121,7 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 
 /* ---------- Janken screen ---------- */
 #janken-screen {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +173,7 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 
 /* ---------- Game screen ---------- */
 #game-screen {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 10px;
@@ -242,12 +242,18 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 #table-area {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 24px;
-  position: relative;
   min-height: 0;
+  width: 100%;
+}
+
+#table-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 #direction-indicator {
@@ -257,11 +263,10 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
 }
 
 #log-box {
-  position: absolute;
-  left: 10px;
-  top: 0;
-  bottom: 0;
+  flex-shrink: 0;
+  align-self: stretch;
   width: 240px;
+  max-height: 320px;
   overflow-y: auto;
   font-size: 16px;
   color: #cde;
@@ -559,4 +564,81 @@ body.rules-page {
   border-left: 3px solid #ffd500;
   padding-left: 10px;
   margin-top: 10px;
+}
+
+/* ---------- Small screens (phones) ---------- */
+@media (max-width: 700px) {
+  .title { font-size: 48px; }
+  .setup-box { padding: 30px 24px; }
+
+  #table-area {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #log-box {
+    width: 100%;
+    max-width: 420px;
+    align-self: center;
+    height: 90px;
+    max-height: 90px;
+  }
+
+  .card {
+    width: 58px;
+    height: 84px;
+    font-size: 22px;
+  }
+
+  .pile {
+    width: 62px;
+    height: 90px;
+  }
+
+  .pile-count {
+    bottom: -22px;
+    font-size: 14px;
+  }
+
+  #current-color-ring {
+    width: 80px;
+    height: 108px;
+  }
+
+  #center-area { gap: 22px; }
+
+  .opponent-hand .card-back {
+    width: 24px;
+    height: 36px;
+    margin-left: -13px;
+  }
+
+  #opponents-area { gap: 10px; }
+
+  .opponent {
+    min-width: 82px;
+    padding: 6px;
+  }
+
+  .opponent-name { font-size: 14px; }
+  .opponent-count { font-size: 13px; }
+
+  #player-hand { min-height: 100px; }
+
+  #player-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .secondary-btn {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+
+  #turn-indicator { font-size: 17px; }
+
+  .uno-btn {
+    font-size: 17px;
+    padding: 8px 20px;
+  }
 }
