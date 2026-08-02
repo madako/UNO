@@ -46,6 +46,16 @@ function cardLabel(card) {
   return '?';
 }
 
+// Cards that share a group key can be played together in one turn, no
+// matter their color (e.g. red-1 and yellow-1). Skip/Reverse/Draw Two
+// are not groupable.
+function groupKey(card) {
+  if (card.type === 'number') return `number:${card.value}`;
+  if (card.type === 'wild') return 'wild';
+  if (card.type === 'wild4') return 'wild4';
+  return null;
+}
+
 // ---------------------------------------------------------------------
 // Game setup
 // ---------------------------------------------------------------------
@@ -79,7 +89,8 @@ function initGame(opponentCount, startIndex) {
     gameOver: false,
     messages: [],
     unoArmed: false, // human clicked "UNO!" in advance of their last play
-    pendingDrawnCard: null // card the human just drew and may choose to play
+    pendingDrawnCard: null, // card the human just drew and may choose to play
+    selectedCards: [] // cards the human has picked to play together this turn
   };
 
   log(`${state.players[state.currentPlayerIndex].name}が じゃんけんで<ruby>勝<rt>か</rt></ruby>ったから、いちばん<ruby>最初<rt>さいしょ</rt></ruby>だよ`);
@@ -194,16 +205,25 @@ function log(msg) {
   if (state.messages.length > 60) state.messages.shift();
 }
 
-// Applies a card play for `player`; chosenColor required for wild cards.
-function playCard(playerIndex, card, chosenColor) {
+function describeCardsGroup(cards) {
+  return cards.map(describeCard).join('と');
+}
+
+// Applies a play of one or more cards (that share a groupKey) for `player`;
+// chosenColor required when the last card is a wild.
+function playCards(playerIndex, cards, chosenColor) {
   const player = state.players[playerIndex];
-  const idx = player.hand.indexOf(card);
-  player.hand.splice(idx, 1);
-  state.discard.push(card);
+  cards.forEach(card => {
+    const idx = player.hand.indexOf(card);
+    player.hand.splice(idx, 1);
+    state.discard.push(card);
+  });
 
-  state.currentColor = card.color === 'wild' ? chosenColor : card.color;
+  const lastCard = cards[cards.length - 1];
+  state.currentColor = lastCard.color === 'wild' ? chosenColor : lastCard.color;
 
-  log(`${player.name}が ${describeCard(card)}を<ruby>出<rt>だ</rt></ruby>したよ！${card.color === 'wild' ? `（<ruby>色<rt>いろ</rt></ruby>は ${colorNameJp(chosenColor)}）` : ''}`);
+  const countNote = cards.length > 1 ? `（${cards.length}まい いっしょに）` : '';
+  log(`${player.name}が ${describeCardsGroup(cards)}を<ruby>出<rt>だ</rt></ruby>したよ！${countNote}${lastCard.color === 'wild' ? `（<ruby>色<rt>いろ</rt></ruby>は ${colorNameJp(chosenColor)}）` : ''}`);
 
   // UNO penalty check: if player now has exactly 1 card, they must have called UNO.
   if (player.hand.length === 1) {
@@ -226,23 +246,25 @@ function playCard(playerIndex, card, chosenColor) {
 
   let steps = 1;
   const n = state.players.length;
+  const type = lastCard.type;
 
-  if (card.type === 'skip') {
+  if (type === 'skip') {
     steps = 2;
-  } else if (card.type === 'reverse') {
+  } else if (type === 'reverse') {
     state.direction *= -1;
     steps = n === 2 ? 2 : 1;
-  } else if (card.type === 'draw2') {
+  } else if (type === 'draw2') {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
     drawCards(target, 2);
     log(`${target.name}は カードを2まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
     steps = 2;
-  } else if (card.type === 'wild4') {
+  } else if (type === 'wild4') {
     const targetIdx = mod(playerIndex + state.direction * 1, n);
     const target = state.players[targetIdx];
-    drawCards(target, 4);
-    log(`${target.name}は カードを4まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
+    const totalDraw = 4 * cards.length;
+    drawCards(target, totalDraw);
+    log(`${target.name}は カードを${totalDraw}まい<ruby>引<rt>ひ</rt></ruby>いて1かいお<ruby>休<rt>やす</rt></ruby>みだよ`);
     steps = 2;
   }
 
@@ -304,7 +326,7 @@ function runAiTurn(playerIndex) {
     if (drawn && isPlayable(drawn, player)) {
       setTimeout(() => {
         const chosenColor = drawn.color === 'wild' ? aiPickColor(player.hand) : undefined;
-        playCard(playerIndex, drawn, chosenColor);
+        playCards(playerIndex, [drawn], chosenColor);
       }, 700);
     } else {
       setTimeout(() => passTurn(playerIndex), 700);
@@ -318,7 +340,7 @@ function runAiTurn(playerIndex) {
 
   const chosenColor = choice.color === 'wild' ? aiPickColor(player.hand.filter(c => c !== choice)) : undefined;
 
-  setTimeout(() => playCard(playerIndex, choice, chosenColor), 700);
+  setTimeout(() => playCards(playerIndex, [choice], chosenColor), 700);
 }
 
 function maybeRunAiTurn() {
@@ -432,29 +454,46 @@ function renderPlayerHand() {
   handDiv.innerHTML = '';
 
   const isHumanTurn = state.currentPlayerIndex === 0 && !state.gameOver;
+  const selected = state.selectedCards;
 
   human.hand.forEach(card => {
-    let playable;
-    if (state.pendingDrawnCard) {
-      playable = isHumanTurn && card === state.pendingDrawnCard;
-    } else {
-      playable = isHumanTurn && isPlayable(card, human);
-    }
     const div = buildCardElement(card, true);
-    if (!playable) div.classList.add('disabled');
+
+    if (state.pendingDrawnCard) {
+      if (!(isHumanTurn && card === state.pendingDrawnCard)) div.classList.add('disabled');
+    } else if (!isHumanTurn) {
+      div.classList.add('disabled');
+    } else if (selected.includes(card)) {
+      div.classList.add('selected');
+    } else if (selected.length > 0) {
+      const gk = groupKey(card);
+      if (gk !== null && gk === groupKey(selected[0])) {
+        div.classList.add('joinable');
+      } else {
+        div.classList.add('disabled');
+      }
+    } else if (!isPlayable(card, human)) {
+      div.classList.add('disabled');
+    }
+
     div.addEventListener('click', () => onHumanCardClick(card));
     handDiv.appendChild(div);
   });
 
+  const remainingAfterPlay = human.hand.length - selected.length;
   const unoBtn = el('uno-btn');
-  const eligible = isHumanTurn && human.hand.length === 2 && !state.unoArmed;
-  unoBtn.classList.toggle('hidden', !eligible);
+  const unoEligible = isHumanTurn && !state.unoArmed &&
+    (selected.length > 0 ? remainingAfterPlay === 1 : human.hand.length === 2);
+  unoBtn.classList.toggle('hidden', !unoEligible);
 
   const drawBtn = el('draw-btn');
-  drawBtn.disabled = !isHumanTurn || !!state.pendingDrawnCard;
+  drawBtn.disabled = !isHumanTurn || !!state.pendingDrawnCard || selected.length > 0;
 
   const passBtn = el('pass-btn');
   passBtn.classList.toggle('hidden', !state.pendingDrawnCard);
+
+  const playBtn = el('play-btn');
+  playBtn.classList.toggle('hidden', selected.length === 0);
 }
 
 function updateTurnIndicator() {
@@ -482,14 +521,41 @@ function onHumanCardClick(card) {
   if (state.pendingDrawnCard) {
     if (card !== state.pendingDrawnCard) return;
     state.pendingDrawnCard = null;
-  } else if (!isPlayable(card, human)) {
+    if (card.color === 'wild') {
+      openColorModal(chosen => playCards(0, [card], chosen));
+    } else {
+      playCards(0, [card], undefined);
+    }
     return;
   }
 
-  if (card.color === 'wild') {
-    openColorModal(chosen => playCard(0, card, chosen));
+  // Tapping an already-selected card removes it from the stack.
+  if (state.selectedCards.includes(card)) {
+    state.selectedCards = state.selectedCards.filter(c => c !== card);
+    render();
+    return;
+  }
+
+  if (state.selectedCards.length === 0) {
+    if (!isPlayable(card, human)) return;
+    state.selectedCards = [card];
   } else {
-    playCard(0, card, undefined);
+    const gk = groupKey(card);
+    if (gk === null || gk !== groupKey(state.selectedCards[0])) return;
+    state.selectedCards.push(card);
+  }
+  render();
+}
+
+function onPlayClick() {
+  if (state.selectedCards.length === 0) return;
+  const cards = state.selectedCards;
+  state.selectedCards = [];
+  const lastCard = cards[cards.length - 1];
+  if (lastCard.color === 'wild') {
+    openColorModal(chosen => playCards(0, cards, chosen));
+  } else {
+    playCards(0, cards, undefined);
   }
 }
 
@@ -707,6 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   el('draw-btn').addEventListener('click', onDrawClick);
   el('pass-btn').addEventListener('click', onPassClick);
+  el('play-btn').addEventListener('click', onPlayClick);
   el('uno-btn').addEventListener('click', onUnoClick);
   el('newgame-btn').addEventListener('click', () => {
     if (confirm('さいしょから やりなおす？')) resetToSetup();

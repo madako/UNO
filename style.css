@@ -343,6 +343,19 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
   transform: translateY(-10px);
 }
 
+.card.selected {
+  transform: translateY(-16px);
+  box-shadow: 0 0 0 4px #ffd500, 0 6px 14px rgba(0,0,0,0.4);
+}
+
+.card.selected:hover {
+  transform: translateY(-16px);
+}
+
+.card.joinable {
+  box-shadow: 0 0 0 3px #ffe066cc;
+}
+
 .card-back {
   background: repeating-linear-gradient(45deg, #1f2440, #1f2440 6px, #2c3266 6px, #2c3266 12px);
   border: 3px solid #fff;
@@ -419,6 +432,16 @@ rt { font-size: 0.5em; color: #cde; user-select: none; }
   cursor: pointer;
   font-size: 18px;
 }
+
+.play-btn {
+  background: linear-gradient(90deg, var(--green), #2ecf5f);
+  border: none;
+  color: #06331a;
+  font-weight: bold;
+  animation: pulse 0.9s infinite;
+}
+
+.play-btn:hover { filter: brightness(1.08); background: linear-gradient(90deg, var(--green), #2ecf5f); }
 
 .secondary-btn:hover { background: rgba(255,255,255,0.2); }
 .secondary-btn:disabled { opacity: 0.4; cursor: default; }
